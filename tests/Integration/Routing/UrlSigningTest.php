@@ -59,6 +59,36 @@ class UrlSigningTest extends TestCase
         $this->assertSame('invalid', $this->get('/foo/1')->original);
     }
 
+    public function testSignedUrlWithNullParameter()
+    {
+        Route::get('/foo/{id}', function (Request $request, $id) {
+            return $request->hasValidSignature() ? 'valid' : 'invalid';
+        })->name('foo');
+
+        $this->assertIsString($url = URL::signedRoute('foo', ['id' => 1, 'param']));
+        $this->assertSame('valid', $this->get($url)->original);
+    }
+
+    public function testSignedUrlWithEmptyStringParameter()
+    {
+        Route::get('/foo/{id}', function (Request $request, $id) {
+            return $request->hasValidSignature() ? 'valid' : 'invalid';
+        })->name('foo');
+
+        $this->assertIsString($url = URL::signedRoute('foo', ['id' => 1, 'param' => '']));
+        $this->assertSame('valid', $this->get($url)->original);
+    }
+
+    public function testSignedUrlWithAppendedNullParameterInvalid()
+    {
+        Route::get('/foo/{id}', function (Request $request, $id) {
+            return $request->hasValidSignature() ? 'valid' : 'invalid';
+        })->name('foo');
+
+        $this->assertIsString($url = URL::signedRoute('foo', ['id' => 1]));
+        $this->assertSame('invalid', $this->get($url.'&appended')->original);
+    }
+
     public function testSignedMiddleware()
     {
         Route::get('/foo/{id}', function (Request $request, $id) {
