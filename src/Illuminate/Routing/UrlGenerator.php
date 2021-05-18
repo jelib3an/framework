@@ -388,8 +388,7 @@ class UrlGenerator implements UrlGeneratorContract
     {
         $url = $absolute ? $request->url() : '/'.$request->path();
 
-        $querystring = $request->server->get('QUERY_STRING');
-        $querystring = preg_replace('/&?signature=[^&]+/', '', $querystring);
+        $querystring = ltrim(preg_replace('/&?\bsignature=[^&]+/', '', $request->server->get('QUERY_STRING')), '&');
 
         $original = rtrim($url.'?'.$querystring, '?');
 
