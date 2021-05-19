@@ -79,6 +79,26 @@ class UrlSigningTest extends TestCase
         $this->assertSame('valid', $this->get($url)->original);
     }
 
+    public function testSignedUrlWithMultipleParameters()
+    {
+        Route::get('/foo/{id}', function (Request $request, $id) {
+            return $request->hasValidSignature() ? 'valid' : 'invalid';
+        })->name('foo');
+
+        $this->assertIsString($url = URL::signedRoute('foo', ['id' => 1, 'param1' => 'value1', 'param2' => 'value2']));
+        $this->assertSame('valid', $this->get($url)->original);
+    }
+
+    public function testSignedUrlWithSignatureTextInKeyOrValue()
+    {
+        Route::get('/foo/{id}', function (Request $request, $id) {
+            return $request->hasValidSignature() ? 'valid' : 'invalid';
+        })->name('foo');
+
+        $this->assertIsString($url = URL::signedRoute('foo', ['id' => 1, 'custom-signature' => 'signature=value']));
+        $this->assertSame('valid', $this->get($url)->original);
+    }
+
     public function testSignedUrlWithAppendedNullParameterInvalid()
     {
         Route::get('/foo/{id}', function (Request $request, $id) {
