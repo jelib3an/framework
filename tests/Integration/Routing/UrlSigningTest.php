@@ -89,26 +89,6 @@ class UrlSigningTest extends TestCase
         $this->assertSame('valid', $this->get($url)->original);
     }
 
-    public function testSignedUrlParametersParsedCorrectly()
-    {
-        Route::get('/foo/{id}', function (Request $request, $id) {
-            return $request->hasValidSignature()
-                && intval($id) === 1
-                && $request->has('paramEmpty')
-                && $request->has('paramEmptyString')
-                && $request->query('paramWithValue') === 'value'
-                ? 'valid'
-                : 'invalid';
-        })->name('foo');
-
-        $this->assertIsString($url = URL::signedRoute('foo', ['id' => 1,
-            'paramEmpty',
-            'paramEmptyString' => '',
-            'paramWithValue' => 'value',
-        ]));
-        $this->assertSame('valid', $this->get($url)->original);
-    }
-
     public function testSignedUrlWithSignatureTextInKeyOrValue()
     {
         Route::get('/foo/{id}', function (Request $request, $id) {
@@ -127,6 +107,26 @@ class UrlSigningTest extends TestCase
 
         $this->assertIsString($url = URL::signedRoute('foo', ['id' => 1]));
         $this->assertSame('invalid', $this->get($url.'&appended')->original);
+    }
+
+    public function testSignedUrlParametersParsedCorrectly()
+    {
+        Route::get('/foo/{id}', function (Request $request, $id) {
+            return $request->hasValidSignature()
+                && intval($id) === 1
+                && $request->has('paramEmpty')
+                && $request->has('paramEmptyString')
+                && $request->query('paramWithValue') === 'value'
+                ? 'valid'
+                : 'invalid';
+        })->name('foo');
+
+        $this->assertIsString($url = URL::signedRoute('foo', ['id' => 1,
+            'paramEmpty',
+            'paramEmptyString' => '',
+            'paramWithValue' => 'value',
+        ]));
+        $this->assertSame('valid', $this->get($url)->original);
     }
 
     public function testSignedMiddleware()
